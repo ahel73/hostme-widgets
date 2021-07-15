@@ -1,0 +1,45 @@
+<div id="calendar">  
+    <table class="table">
+		<thead>
+			<tr>
+				<td>
+					<button v-on:click="decrease"><</button>
+				</td>
+				<td colspan="5"> {{monthes[month]}} {{year}} </td>
+				<td>
+					<button v-on:click="increase">></button>
+				</td>
+			</tr>
+			<tr >
+				<td v-for="d in day">{{d}}</td>
+			</tr>
+		</thead>
+		<tbody>
+			<tr v-for="week in calendar()">		
+                <td 
+                    :class="{'js_select_day': day.index}"
+                    v-for="(day, index) in week" 
+                    :style="{
+                        'color': day.weekend, 
+                        'background-color': day.current,
+                    }"
+                    @click="getSelectDay"
+                    :data-day="day.index"
+                > 
+                    {{ day.index }} 
+                </td>
+			</tr>						
+		</tbody>
+	</table>
+    <div class="format-week">
+        <h4>Формат недели</h4>
+        <div>
+            <input type="radio" value="1" v-model="dFirstMonth" id="customRadio1" name="customRadio" class="custom-control-input">
+            <label for="customRadio1">Monday</label>
+        </div>
+        <div>
+            <input type="radio" value="0" v-model="dFirstMonth" id="customRadio2" name="customRadio" class="custom-control-input">
+            <label for="customRadio2">Sunday</label>
+        </div>
+    </div>
+</div>

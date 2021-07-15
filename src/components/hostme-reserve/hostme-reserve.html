@@ -1,0 +1,78 @@
+<div id="hostme-reserve">
+        <h2>Забронировать</h2>
+        <div>
+            <h3>Локация {{ areas.length}}</h3>
+            <div v-if="areas.length" class="conteyner">
+                <label 
+                    v-for="(local, index) in areas" 
+                    :key="local.name" 
+                    :for="'local_' + index"
+                >
+                    <input 
+                        type="checkbox" 
+                        name="" 
+                        v-model="local.cheked" 
+                        :id="'local_' + index"
+                    >
+                    <span>
+                        {{ local.name }}
+                    </span>
+                </label>
+            </div>
+            <div v-else class="conteyner">
+                <p>Локация не выбрана</p>
+            </div>        
+        </div>
+        <div>
+            <h3>Количество гостей {{minPartySize + ' ' + maxPartySize }}</h3>
+            
+            <select 
+                :value="groupSize"
+                @change="changeGroupSize"
+            >
+                <option v-for="(n, i) in (maxPartySize - minPartySize + 1)" >{{minPartySize + i}}</option>
+            </select>
+        </div>
+      <div>
+            <h3>Укажите дату {{reservationDay}}</h3>
+            <input 
+                type="date" 
+                :value="reservationDay"
+                @input="changeDate"
+            >
+        </div>
+         <div>
+            <h3>Укажите время посещения</h3>
+            
+            <select
+                :value="reservationTime"
+                @input="changeTime"
+            >
+                <option v-for="item in arrayIntervalTime" >{{item['slot']}}</option>
+            </select>
+        </div>
+        <button
+            @click="changeNextContact"
+        >Забронировать</button>
+        <p>{{guestReservationNote}}</p>
+
+        <div v-if="nextContact">
+            <p>
+                <span>к календарю</span> 
+                <span>Уточнения</span>
+                <span>закрыть</span>
+            </p>
+            <contact-block
+                :customerName="customerName"
+                :email="email"
+                :phoneNumber="phoneNumber"
+            ></contact-block>
+            
+            <calendar
+                v-on:change-day="getSelectDay($event)"
+            ></calendar>
+            <calendar
+                v-on:change-day="getSelectDay($event)"
+            ></calendar>
+        </div>
+</div>

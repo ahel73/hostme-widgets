@@ -1,0 +1,31 @@
+<div>
+    <hostme-reserve 
+        :restaurant-id="2033" 
+        :data-area-select-required="true" 
+        :data-time-select-required="true"
+        :data-calendar-select-required="true"
+        :data-guest-select-required="true"
+        :data-online-update-off="true"
+        @open="$emit('open:reserve', ($event))"
+        :areas="areas"
+        :max-party-size="maxPartySize"
+        :min-party-size="minPartySize"
+        :group-size="groupSize"
+        :change-group-size="changeGroupSize"
+        :reservation-day="reservationDay"
+        :change-date="changeDate"
+        :array-interval-time="arrayIntervalTime"
+        :reservation-time="reservationTime"    
+        :change-time="changeTime"
+        :change-next-contact="changeNextContact"
+        :guest-reservation-note="guestReservationNote"
+        :next-contact="nextContact"
+        v-on:change-day="getSelectDay($event)"
+        :customerName="customerName"
+        :email="email"
+        :phoneNumber="phoneNumber"
+    ></hostme-reserve>    
+</div>
+
+
+

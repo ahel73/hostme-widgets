@@ -1,0 +1,30 @@
+<html>
+
+<head>
+    <script src="index.js"></script>
+    <link href="styles.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+    <app
+    :areas="i.areas"
+    :max-party-size="i.maxPartySize"
+    :min-party-size="i.minPartySize"
+    :group-size="i.groupSize"
+    :change-group-size="changeGroupSize"
+    :reservation-day="i.reservationDay"
+    :change-date="changeDate"
+    :array-interval-time="i.arrayIntervalTime"
+    :reservation-time="i.reservationTime"    
+    :change-time="changeTime"
+    :change-next-contact="changeNextContact"
+    :guest-reservation-note="i.guestReservationNote"
+    :next-contact="i.nextContact"
+    v-on:change-day="getSelectDay($event)"
+    :customerName="customerName"
+    :email="email"
+    :phoneNumber="phoneNumber"
+    ></app>
+</body>
+
+</html>
