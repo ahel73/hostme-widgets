@@ -17,7 +17,11 @@
 		<tbody>
 			<tr v-for="week in calendar()">		
                 <td 
-                    :class="{'js_select_day': day.index}"
+                    :class="{
+                        'js_select_day': day.index,
+                        'output': day.output,
+                        'past': day.past,
+                    }"
                     v-for="(day, index) in week" 
                     :style="{
                         'color': day.weekend, 

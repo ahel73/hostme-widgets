@@ -16,5 +16,7 @@ export const config = {
     HostmeGlobalCatalogApiUrl: "https://hostme-global-catalog-api-prod.azurewebsites.net",
     HostmeGuestAppApi: "https://hostme-webguest.azurewebsites.net",
     HostmeGuestMediaBlob: "https://hostmerestaurants.blob.core.windows.net",
-    BlobCoreUrl: "https://hostmeprod.blob.core.windows.net"
+    BlobCoreUrl: "https://hostmeprod.blob.core.windows.net",
+    // Новый домен для api формирования виджита резервирования
+    newUrlApi: "https://api.hostmeapp.com",
 };

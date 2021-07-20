@@ -6,14 +6,19 @@ import template from "./calendar.html"
 
 Vue.component("calendar", {
     template: template,
+    props: [
+        "is-output"
+    ],
     data: function () {
         return {
-            month: new Date().getMonth(),    
-			year: new Date().getFullYear(), 
+             
 			dFirstMonth: '1',
 			day:["Mn", "Tu","We","Th","Fr","Sa", "Su"],
 			monthes: ["January","February","March","April","May","June","July","August","September","October","November","December"],
             date: new Date(),
+            month: new Date().getMonth(),    
+            year: new Date().getFullYear(),
+            labelUtc: new Date().getTime(), // UTC метка сегодняшнего дня
             selectDay: 0,
         }
     },
@@ -29,15 +34,24 @@ Vue.component("calendar", {
             monthDays[week] = [];
 
             // Усианавливаем последний день текущего месяца
-            var dlast = new Date(this.year, this.month + 1, 0).getDate();
+            var dlast = new Date(this.year, this.month + 1, 0).getDate();            
             
             // Заполняем подмассивы недель днями
             for (let i = 1; i <= dlast; i++) {
 
-                var a  = {index:i};
+                var day = new Date(this.year, this.month, i, this.date.getHours(), this.date.getMinutes(), this.date.getSeconds(), this.date.getMilliseconds());
+                
+                var a = {
+                    index: i,
+                    weekDay: day.getDay(),
+                    past: day.getTime() < this.labelUtc,
+                };
+                // Если день недели является выходным для заведения, ставим доп класс
+                a.output = this.isOutput(a.weekDay);
+
                 
                 // Если день недели итерируемого дня месяца не равен началу недели, то загоняем его текущую неделю по умолчанию нулевая
-                if (new Date(this.year, this.month, i).getDay() != this.dFirstMonth) {
+                if ( a.weekDay != this.dFirstMonth) {
                     
                     monthDays[week].push(a);
                 }
@@ -51,8 +65,8 @@ Vue.component("calendar", {
                 // Если итерируемый день равен текущей дате  выделяем его
                 if (i == new Date().getDate() && this.year == new Date().getFullYear() && this.month == new Date().getMonth()) { a.current = '#747ae6' };
                 
-                // Если день недели итерируемого объекта выходной то красим цвет
-                if (new Date(this.year, this.month, i).getDay() == 6 || new Date(this.year, this.month, i).getDay() == 0) { a.weekend = '#ff0000' };
+                // Если день недели итерируемого объекта общий выходной то красим цвет
+                if (a.weekDay == 6 || a.weekDay == 0) { a.weekend = '#ff0000' };
             }
             
             // Если первый день месяца не является первым днём недели то перед этим днём добавляенм в неделе (подмассиве) пробелы
@@ -101,6 +115,7 @@ Vue.component("calendar", {
             }
             var dm = [this.month, day]
             dm.forEach((el, i) => {
+                if (i == 0) ++el;
                 if (el < 10) dm[i] = '0' + el;
             })
             var dayFull = `${this.year}-${dm[0]}-${dm[1]}`

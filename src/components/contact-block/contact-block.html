@@ -9,11 +9,29 @@
             Контактная информация
         </h3>
         <p>
-            <input type="text">
-            <input type="text">
+            
+            <input 
+                type="text"
+                :value="customerName"
+                @change="changeCustomerName"
+                placeholder="Имя и Фамилия"
+            >
+           
+            <input 
+                type="text"
+                :value="phoneNumber"
+                @change="changePhoneNumber"
+                placeholder="Телефон"
+            >
         </p>
         <p>
-            <input type="text">
+            
+            <input 
+                type="text"
+                :value="email"
+                @change="changeEmail"
+                placeholder="Ваш Email"
+            >
         </p>
         <div>
             <p>

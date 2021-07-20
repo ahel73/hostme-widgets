@@ -7,6 +7,7 @@
         :data-guest-select-required="true"
         :data-online-update-off="true"
         @open="$emit('open:reserve', ($event))"
+        
         :areas="areas"
         :max-party-size="maxPartySize"
         :min-party-size="minPartySize"
@@ -14,16 +15,20 @@
         :change-group-size="changeGroupSize"
         :reservation-day="reservationDay"
         :change-date="changeDate"
-        :array-interval-time="arrayIntervalTime"
+        :free-time-slots="freeTimeSlots"
         :reservation-time="reservationTime"    
         :change-time="changeTime"
         :change-next-contact="changeNextContact"
         :guest-reservation-note="guestReservationNote"
         :next-contact="nextContact"
         v-on:change-day="getSelectDay($event)"
-        :customerName="customerName"
+        :customer-name="customerName"
+        :change-customer-name="changeCustomerName"
         :email="email"
-        :phoneNumber="phoneNumber"
+        :change-email="changeEmail"
+        :phone-number="phoneNumber"
+        :change-phone-number="changePhoneNumber"
+        :is-output="isOutput"
     ></hostme-reserve>    
 </div>
 

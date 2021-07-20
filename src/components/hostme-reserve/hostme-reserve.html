@@ -1,4 +1,5 @@
 <div id="hostme-reserve">
+    
         <h2>Забронировать</h2>
         <div>
             <h3>Локация {{ areas.length}}</h3>
@@ -24,7 +25,7 @@
             </div>        
         </div>
         <div>
-            <h3>Количество гостей {{minPartySize + ' ' + maxPartySize }}</h3>
+            <h3>Численность компании {{minPartySize + ' ' + maxPartySize }}</h3>
             
             <select 
                 :value="groupSize"
@@ -48,7 +49,7 @@
                 :value="reservationTime"
                 @input="changeTime"
             >
-                <option v-for="item in arrayIntervalTime" >{{item['slot']}}</option>
+                <option v-for="item in freeTimeSlots" >{{item['slot']}}</option>
             </select>
         </div>
         <button
@@ -63,15 +64,16 @@
                 <span>закрыть</span>
             </p>
             <contact-block
-                :customerName="customerName"
+                :customer-name="customerName"
+                :change-customer-name="changeCustomerName"
                 :email="email"
-                :phoneNumber="phoneNumber"
+                :change-email="changeEmail"
+                :phone-number="phoneNumber"
+                :change-phone-number="changePhoneNumber"
             ></contact-block>
             
             <calendar
-                v-on:change-day="getSelectDay($event)"
-            ></calendar>
-            <calendar
+                :is-output="isOutput"
                 v-on:change-day="getSelectDay($event)"
             ></calendar>
         </div>

@@ -1,6 +1,9 @@
 import Vue from "vue";
 import "./polyfills";
 import axios from 'axios';
+import { Moment } from "moment";
+import moment = require("moment");
+import momentTZ = require("moment-timezone/builds/moment-timezone-with-data-2012-2022.min");
 
 import app from "./components/app/app.html";
 import hostmeReserve from "./components/hostme-reserve/hostme-reserve.html";
@@ -26,15 +29,19 @@ Vue.component("hostme-reserve", {
         'change-group-size',
         'reservation-day',
         'change-date',
-        'array-interval-time',
+        'free-time-slots',
         'reservation-time',
         'change-time',
         'change-next-contact',
         'guest-reservation-note',
         'next-contact',
-        "customerName",
+        "customer-name",
+        "change-customer-name",
         "email",
-        "phoneNumber",
+        "change-email",
+        "phone-number",
+        "change-phone-number",
+        "is-output",
     ]
 });
 
@@ -53,15 +60,19 @@ Vue.component("app", {
         'change-group-size',
         'reservation-day',
         'change-date',
-        'array-interval-time',
+        'free-time-slots',
         'reservation-time',
         'change-time',
         'change-next-contact',
         'guest-reservation-note',
         'next-contact',
-        "customerName",
+        "customer-name",
+        "change-customer-name",
         "email",
-        "phoneNumber",
+        "change-email",
+        "phone-number",
+        "change-phone-number",
+        "is-output",
     ]
 });
 
@@ -71,11 +82,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const app = new Vue({
         el: 'app',
         data: function () {
-            return { i: {} }
+            return {
+                i: {},
+                changeDateFlag: false, // Наблюдатель за выбором даты
+            }
         },
         methods: {
             changeDate($event: any) {
                 this.i.reservationDay = $event.target.value
+                this.changeDateFlag = !this.changeDateFlag;
             },
             changeTime($event: any) {
                 this.i.reservationTime = $event.target.value
@@ -83,24 +98,38 @@ document.addEventListener("DOMContentLoaded", () => {
             changeGroupSize($event: any) {
                 this.i.groupSize = $event.target.value
             },
+            changeCustomerName($event: any) {
+                this.i.customerName = $event.target.value
+            },
+            changeEmail($event: any) {
+                this.i.email = $event.target.value
+            },
+            changePhoneNumber($event: any) {
+                this.i.phoneNumber = $event.target.value
+            },
             changeNextContact() {
                 this.i.nextContact = !this.i.nextContact;
                 console.log(this.i)
             },
             getSelectDay(day) {
-                this.i.reservationDay = day
-                alert(this.i.reservationDay)
+                this.i.reservationDay = day;
+                this.changeDateFlag = !this.changeDateFlag;
             },
             /**
              * Формирует массив свободных временных слотов для бронирования
              */
-            freeTimeSlots(date: string, partySize: number, rangeInMinutes: number): any {
+            getFreeTimeSlots(): any {
                 
-                var query = `https://api.hostmeapp.com/api/core/mb/restaurants/9638/availability?contract.date=${date}%2B02:00&contract.partySize=${partySize}&contract.rangeInMinutes=${rangeInMinutes}
-                `
-
-                query = `https://api.hostmeapp.com/api/core/mb/restaurants/9638/availability?date=2021-07-15T15%3A00%3A00%2B02%3A00&partySize=1&rangeInMinutes=900`
-                console.log(query)
+                var url = new URL(`${config.newUrlApi}/api/core/mb/restaurants/${vue.i.restaurantId}/availability`);
+                var tz = momentTZ.tz(vue.i.timeZone).format()
+                tz = tz.substring(tz.length - 6)
+                var date =  vue.i.reservationDay + 'T' + '15:00:00' + tz
+                url.searchParams.set('date', date);
+                url.searchParams.set('partySize', vue.i.groupSize);
+                var secund = '' + vue.i.hoursInterval * 60
+                url.searchParams.set('rangeInMinutes', secund);
+                var query = url.href;
+                
                 var availability = this.getQueryApi(query)
                 var openingHours = []
                 if (availability.length) {
@@ -125,72 +154,65 @@ document.addEventListener("DOMContentLoaded", () => {
                 ajax.open('get', queryString, false)
                 ajax.send();
                 return JSON.parse(ajax.responseText)
+            },
+
+            getQueryApi_: async (queryString: string) => {
+                var a = await axios.get(queryString)
+                return JSON.parse(a.request.responseText)
+            },
+            isOutput(weekDay: string) {
+                return this.i.workingDay[weekDay] ? false : true;
+            }
+        },
+        watch: {
+            changeDateFlag() {
+                this.i.freeTimeSlots = this.getFreeTimeSlots()
             }
         },
         beforeCreate() {
             console.log('beforeCreate');
             vue = this;
         },
-        created: async () : Promise<void> => {
+        created() {
             console.log('created')
-            console.log('это тыс', vue)
-
-            var queryString = `${config.HostmeGuestAppApi}/api/core/mb/guest/restaurants/nenu-the-artisan-baker-valletta`
-            var resInfo = vue.getQueryApi(queryString).reservationConfig;
+            
+            var queryString = `${config.newUrlApi}/api/core/mb/restaurants/9638`
+            var resInfo = vue.getQueryApi(queryString);
             console.log('это аякс', resInfo);
             
-
-            // var d = await axios(`${config.HostmeGuestAppApi}/api/core/mb/guest/restaurants/2033`);
-            // console.log('это аксиос', d)
-            
             
 
-            var today = new Date(),
-                openingHours = resInfo.openingHours.openingHours,
-                open = openingHours[today.getDay()].time[0].open.split(':'),
-                cloze = openingHours[today.getDay()].time[0].close.split(':'),
-                hoursInterval = resInfo.hoursInterval || '15', // Временной интервал резерва
-                arrayIntervalTime = [];
-            console.log('сегодня день недели: ', today.getDay())
-            for (var hour = +open[0], min = +open[1]; hour <= +cloze[0] || min < +cloze[1];) {
+            var workingDay = {};
+            resInfo.openingHours.openingHours.forEach(day => {
+                workingDay[''+day.weekDay] = day.time[0]
+            });           
+            
+
+            var i = {
                 
-                if (min >= 60 ) {
-                    hour++;
-                    min = 0;
-                   
-                }
-                if (hour >= +cloze[0] && min >= +cloze[1]) break;
-
-                arrayIntervalTime.push(hour + '-' + (min == 0 ? '00' : min))
-                min += +hoursInterval;
-            }
-            // arrayIntervalTime = vue.freeTimeSlots(resInfo.openingHours.nextPeriodDate, 1, +resInfo.hoursInterval * 60);
-            console.log(arrayIntervalTime)
-            var array = vue.freeTimeSlots(resInfo.openingHours.nextPeriodDate, 1, +resInfo.hoursInterval * 60)
-            console.log('hhhhh', array)
-
-            var i   = {
                 restaurantId: resInfo.id,
-                areas: [],
-                guestReservationNote: resInfo.guestReservationNote || '',
+                areas: [], // локализация
+                guestReservationNote: resInfo.guestReservationNote || '', // Заметка при резервировании
 
-                today: today, //Сегодняшний день
-                openingHours: openingHours, // Рабочии дни с раписанием
-                arrayIntervalTime: array,
-                reservationTime: array[0].slot, //Время начала резерва
+                workingDay: workingDay, // Рабочии дни с раписанием
+                freeTimeSlots: [],
                 
-                 
-                maxAdvanceBookingDays: resInfo.maxAdvanceBookingDays || null, // на сколько дней вперёд можно резервировать                
+                
+                hoursInterval: resInfo.hoursInterval || '15', // Временной интервал резерва
+                maxAdvanceBookingDays: +resInfo.maxAdvanceBookingDays || 365, // на сколько дней вперёд можно резервировать                
                 reservationDay: resInfo.openingHours.nextPeriodDate.split('T')[0], //День начала резерва
+                reservationTime: '', //Время начала резерва
+                timeZone: resInfo.timeZone, // Временной пояс заведения
 
 
-                maxPartySize: resInfo.maxPartySize || 0,
-                minPartySize: resInfo.minPartySize || 0,
-                groupSize: resInfo.minPartySize || 0,
+                maxPartySize: resInfo.maxPartySize || 7,
+                minPartySize: resInfo.minPartySize || 1,
+                groupSize: resInfo.minPartySize || 1,
 
                 // Раздел управления виджетоь
                 nextContact: false, // Открывает блок с контактами заказчика
                 
+                // Контактные данные заказчика
                 customerName: '',
                 email: '',
                 phoneNumber: '',
@@ -203,16 +225,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
             }
-
-            resInfo.areas = ['веранда', 'балкон', 'фойе']
-            if (resInfo.areas && resInfo.areas.length) {
-                resInfo.areas.forEach(element => {
-                    i.areas.push({name: element, cheked: false})
-                });
-            }
             vue.i = i;
-            console.log(resInfo);
-            console.log(vue.i);
+
+            i.freeTimeSlots = vue.getFreeTimeSlots();
+            i.reservationTime = i.freeTimeSlots[0].slot;
         },
         beforeMount() {
             console.log('beforeMount')

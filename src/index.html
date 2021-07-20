@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 
 <head>
@@ -7,23 +8,27 @@
 
 <body>
     <app
-    :areas="i.areas"
-    :max-party-size="i.maxPartySize"
-    :min-party-size="i.minPartySize"
-    :group-size="i.groupSize"
-    :change-group-size="changeGroupSize"
-    :reservation-day="i.reservationDay"
-    :change-date="changeDate"
-    :array-interval-time="i.arrayIntervalTime"
-    :reservation-time="i.reservationTime"    
-    :change-time="changeTime"
-    :change-next-contact="changeNextContact"
-    :guest-reservation-note="i.guestReservationNote"
-    :next-contact="i.nextContact"
-    v-on:change-day="getSelectDay($event)"
-    :customerName="customerName"
-    :email="email"
-    :phoneNumber="phoneNumber"
+        :areas="i.areas"
+        :max-party-size="i.maxPartySize"
+        :min-party-size="i.minPartySize"
+        :group-size="i.groupSize"
+        :change-group-size="changeGroupSize"
+        :reservation-day="i.reservationDay"
+        :change-date="changeDate"
+        :free-time-slots="i.freeTimeSlots"
+        :reservation-time="i.reservationTime"    
+        :change-time="changeTime"
+        :change-next-contact="changeNextContact"
+        :guest-reservation-note="i.guestReservationNote"
+        :next-contact="i.nextContact"
+        v-on:change-day="getSelectDay($event)"
+        :customer-name="i.customerName"
+        :change-customer-name="changeCustomerName"
+        :email="i.email"
+        :change-email="changeEmail"
+        :phone-number="i.phoneNumber"
+        :change-phone-number="changePhoneNumber"
+        :is-output="isOutput"
     ></app>
 </body>
 
